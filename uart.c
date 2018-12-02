@@ -48,7 +48,7 @@ void uart_uint_to_str(char **buf, uint8_t buf_len, char prepend, uint8_t width,
 	uint8_t ctr = 0;
 	char *ptr = &(*buf)[buf_len - 1];
 	char hex_digits[] = "0123456789ABCDEF";
-	bzero(*buf, buf_len);
+	*ptr = '\0';
 	memset(*buf, prepend, buf_len - 1);
 
 

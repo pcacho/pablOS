@@ -1,5 +1,7 @@
 #include <stdarg.h>
 #include <strings.h>
+#include <string.h>
+#include <ctype.h>
 #include "gpio.h"
 #include "uart.h"
 
@@ -41,15 +43,25 @@ void uart_init(void) {
 
 }
 
-void uart_uint_to_str(char **buf, uint8_t buf_len, uint32_t val, uint8_t base) {
+void uart_uint_to_str(char **buf, uint8_t buf_len, char prepend, uint8_t width,
+						uint32_t val, uint8_t base) {
+	uint8_t ctr = 0;
 	char *ptr = &(*buf)[buf_len - 1];
 	char hex_digits[] = "0123456789ABCDEF";
 	bzero(*buf, buf_len);
+	memset(*buf, prepend, buf_len - 1);
 
 
 	while (val != 0) {
 		*--ptr = hex_digits[val % base];
 		val = val / base;
+		ctr++;
+	}
+	if (width) {
+		while (ctr != width) {
+			ptr--;
+			ctr++;
+		}
 	}
 	*buf = ptr;
 }
@@ -59,8 +71,10 @@ void uart_printf(char *str, ...) {
 	char *s;
 	uint32_t val;
 	va_list arg;
-	char buffer[16];
+	char buffer[32];
 	char *ptr = &buffer[0];
+	uint8_t width = 0;
+	char prepend = '\0';
 
 	va_start(arg, str);
 	while(*str != '\0') {
@@ -74,6 +88,19 @@ void uart_printf(char *str, ...) {
 		// increment to get format type
 		str++;
 
+		// %[parameter][flags][width][.precision][length]type
+		if (isdigit(*str)) {
+			// prepend with 0s otherwise spaces
+			prepend = (*str == '0') ? '0' : ' ';
+			if (isdigit(*++str)) {
+				width = *str++;
+				if (width > 8) {
+					width = 8;
+				}
+			}
+			//uart_printf("prepend=%c width=%d\n", prepend, width);
+		}
+
 		switch(*str) {
 		case('c'):
 			val = va_arg(arg, int);
@@ -84,13 +111,13 @@ void uart_printf(char *str, ...) {
 			if (val < 0) {
 				uart_putc('-');
 			}
-			uart_uint_to_str(&ptr, sizeof(buffer), val, 10);
+			uart_uint_to_str(&ptr, sizeof(buffer), prepend, width, val, 10);
 			uart_puts(ptr);
 			break;
 		case('x'):
 		case('X'):
 			val = va_arg(arg, int);
-			uart_uint_to_str(&ptr, sizeof(buffer), val, 16);
+			uart_uint_to_str(&ptr, sizeof(buffer), prepend, width, val, 16);
 			uart_puts(ptr);
 			break;
 		case('s'):

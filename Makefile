@@ -1,5 +1,5 @@
 TARGET = pablOS
-C_SRCS += pablOS.c uart.c gpio.c
+C_SRCS += pablOS.c uart.c gpio.c util.c
 CFLAGS += -O2 -fno-builtin-printf -DNO_INIT
 
 BSP_BASE = ../../bsp

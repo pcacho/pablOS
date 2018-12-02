@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "platform.h"
 #include "uart.h"
+#include "util.h"
 
 static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.1\n\r";
 
@@ -22,5 +23,6 @@ int main(void) {
 
 	uart_puts(pablOS_version);
 	uart_puts("\n\r");
+	util_memdump((uint32_t*) &pablOS_version[0], 64);
 
 }

@@ -52,11 +52,14 @@ void uart_uint_to_str(char **buf, uint8_t buf_len, char prepend, uint8_t width,
 	memset(*buf, prepend, buf_len - 1);
 
 
+	// Convert to ASCII
 	while (val != 0) {
 		*--ptr = hex_digits[val % base];
 		val = val / base;
 		ctr++;
 	}
+
+	// If there is a minimum width, pad it
 	if (width) {
 		while (ctr != width) {
 			ptr--;
@@ -88,6 +91,7 @@ void uart_printf(char *str, ...) {
 		// increment to get format type
 		str++;
 
+		// Get the format for type
 		// %[parameter][flags][width][.precision][length]type
 		if (isdigit(*str)) {
 			// prepend with 0s otherwise spaces
@@ -98,7 +102,6 @@ void uart_printf(char *str, ...) {
 					width = 8;
 				}
 			}
-			//uart_printf("prepend=%c width=%d\n", prepend, width);
 		}
 
 		switch(*str) {

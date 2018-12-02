@@ -145,3 +145,17 @@ void uart_printf(char *str, ...) {
 	}
 
 }
+
+#if defined(TEST_BUILD)
+// uart_puts should return a pointer to a char *str
+// so we can intercept the traffic prior to writing it
+// to the uart
+int uart_printf_test(void) {
+	// test printf("%X") -> check expected output with intercepted data
+	// test printf("%01X")
+	// test printf("%02X")
+	// ...
+	// test printf("%08X")
+	// test printf("%09X") -> this should truncate to 8
+}
+#endif

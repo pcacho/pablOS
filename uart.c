@@ -157,5 +157,6 @@ int uart_printf_test(void) {
 	// ...
 	// test printf("%08X")
 	// test printf("%09X") -> this should truncate to 8
+	// test parameter that does not exist in switch statement
 }
 #endif

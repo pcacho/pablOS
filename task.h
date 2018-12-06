@@ -47,7 +47,7 @@ typedef enum {
 typedef struct tcb {
 	void *function;
 	uint8_t id;
-	uint32_t sp;
+	uint32_t *sp;
 	uint32_t stack_size;
 	uint8_t priority;
 	uint8_t wait_time;

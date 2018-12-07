@@ -35,7 +35,7 @@
 #include "task.h"
 
 int task_create(tcb_t *tcb, char *task_name, void (*function), uint8_t task_id,
-				uint8_t priority, uint32_t sp, uint32_t stack_size) {
+				uint8_t priority, uint32_t *sp, uint32_t stack_size) {
 
 	bzero(tcb, sizeof(tcb_t));
 	tcb->function = function;

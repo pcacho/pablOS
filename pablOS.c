@@ -33,6 +33,9 @@
 #include "platform.h"
 #include "uart.h"
 #include "util.h"
+#include "task.h"
+#include "idle.h"
+#include "scheduler.h"
 
 static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.1\n\r";
 
@@ -46,14 +49,23 @@ int main(void) {
 	// Turn off HFROSC to save power
 	PRCI_REG(PRCI_HFROSCCFG) &= ~(ROSC_EN(1));
 
+	// Initialize UART
 	uart_init();
-
-	// UART needs settling time
-	volatile int i=0;
-	while(i < 10000){i++;}
 
 	uart_puts(pablOS_version);
 	uart_puts("\n\r");
 	util_memdump((uint32_t*) &pablOS_version[0], 64);
+
+	// Initialize scheduler
+	scheduler_init();
+
+	// Initialize the Task Manager State
+	task_init();
+
+	// Initialize Idle Task
+	idle_task_init();
+
+	// Call the scheduler
+	scheduler();
 
 }

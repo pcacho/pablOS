@@ -29,10 +29,52 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "queue.h"
+#include "uart.h"
+#include "task.h"
 #include "scheduler.h"
 
+extern void context_restore(uint32_t sp);
 // Ready Queue fed by:
 // Fast Service Queue
 // Event Queue
 // Time tabled Queue
 // Base Level Queue
+
+// Ready Queue
+Queue s_readyQ;
+Queue s_runningQ;
+
+#define QUEUE_NAME_READY "ReadyQueue"
+#define QUEUE_NAME_RUNNING "RunningQueue"
+
+int scheduler_init(void) {
+	int ret;
+	ret = queue_init(&s_readyQ, QUEUE_NAME_READY);
+	if (ret != 0) {
+		uart_printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
+	} else {
+		uart_printf("%s: Scheduler initialized\n\r", __FUNCTION__);
+	}
+
+	ret = queue_init(&s_runningQ, QUEUE_NAME_RUNNING);
+	if (ret != 0) {
+		uart_printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
+	} else {
+		uart_printf("%s: Scheduler initialized\n\r", __FUNCTION__);
+	}
+
+	return 0;
+}
+
+void scheduler_new_task(tcb_t *tcb) {
+	queue_insert(s_readyQ, tcb);
+}
+
+int scheduler(void) {
+	tcb_t *tcb;
+
+	queue_dequeue(s_readyQ, &tcb);
+	context_restore((uint32_t) tcb->sp);
+
+}

@@ -28,15 +28,24 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef _QUEUE_H
+#define _QUEUE_H
 
-
-#ifndef _SCHEDULER_H
-#define _SCHEDULER_H
-
+#include <stdint.h>
+#include "platform.h"
 #include "task.h"
 
-int scheduler_init(void);
-int scheduler(void);
-void scheduler_new_task(tcb_t *tcb);
+#define QUEUE_MAX_NAME_LEN 16
+typedef struct {
+	tcbPtr head;
+	tcbPtr tail;
+	uint32_t size;
+	char name[QUEUE_MAX_NAME_LEN];
+	//mutex
+} Queue_t, *Queue;
+
+int queue_init(Queue *qp, char *name);
+void queue_insert(Queue Q, tcb_t *tcb);
+int queue_dequeue(Queue Q, tcb_t **tcb);
 
 #endif

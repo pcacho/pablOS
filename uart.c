@@ -71,7 +71,12 @@ void uart_init(void) {
 	UART0.TXCTRL.txen = 1;
 	UART0.RXCTRL.rxen = 1;
 
-
+	// TODO: add delays in timer.c
+	// UART needs settling time
+	volatile int i=0;
+	while (i < 10000){
+		i++;
+	}
 }
 
 void uart_uint_to_str(char **buf, uint8_t buf_len, char prepend, uint8_t width,
@@ -84,7 +89,7 @@ void uart_uint_to_str(char **buf, uint8_t buf_len, char prepend, uint8_t width,
 
 
 	// Convert to ASCII
-	while (val != 0) {
+	while ((val != 0) || (ctr == 0)) {
 		*--ptr = hex_digits[val % base];
 		val = val / base;
 		ctr++;

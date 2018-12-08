@@ -29,14 +29,70 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
+#include <stdlib.h>
+#include "uart.h"
+#include "queue.h"
 
-#ifndef _SCHEDULER_H
-#define _SCHEDULER_H
+#define QUEUE_DEBUG 1
 
-#include "task.h"
-
-int scheduler_init(void);
-int scheduler(void);
-void scheduler_new_task(tcb_t *tcb);
-
+int queue_init(Queue *qp, char *name) {
+	*qp = (Queue) malloc(sizeof(Queue_t));
+	if (*qp == NULL) {
+#if QUEUE_DEBUG
+		uart_printf("%s: ERROR unable to allocate space for queue\n\r", __FUNCTION__);
 #endif
+		return -1;
+	}
+	(*qp)->head = NULL;
+	(*qp)->tail = NULL;
+	(*qp)->size = 0;
+	strncpy((*qp)->name, name, QUEUE_MAX_NAME_LEN);
+#if QUEUE_DEBUG
+	uart_printf("%s: initialized %s\n\r", __FUNCTION__, (*qp)->name);
+#endif
+
+	return 0;
+}
+
+int queue_empty(Queue Q) {
+	return Q->head == NULL;
+}
+
+void queue_insert(Queue Q, tcb_t *tcb) {
+#if QUEUE_DEBUG
+	int position;
+#endif
+	if (queue_empty(Q)) {
+		Q->head = tcb;
+		Q->tail = tcb;
+		Q->size++;
+#if QUEUE_DEBUG
+		position = 0;
+#endif
+	} else {
+		Q->tail->next = tcb;
+		Q->tail = tcb;
+#if QUEUE_DEBUG
+		position = Q->size;
+#endif
+		Q->size++;
+	}
+#if QUEUE_DEBUG
+	uart_printf("%s: inserted %s into position=%d\n\r",
+			__FUNCTION__, tcb->name, position);
+#endif
+}
+
+int queue_dequeue(Queue Q, tcb_t **tcb) {
+	if (queue_empty(Q)) {
+		return -1;
+	}
+	*tcb = Q->head;
+	Q->head = Q->head->next;
+	if (Q->head == NULL) {
+		Q->tail = NULL;
+	}
+
+	return 0;
+}

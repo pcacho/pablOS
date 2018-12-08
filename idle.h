@@ -35,6 +35,7 @@
 #include <stdint.h>
 #include "platform.h"
 
-void idle_task(void);
+void *idle_task(void);
+int idle_task_init(void);
 
 #endif

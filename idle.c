@@ -29,9 +29,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "task.h"
 #include "idle.h"
+#include "uart.h"
 
-void idle_task(void) {
+const char idle_task_name[] = "IdleTask";
+const uint8_t idle_task_priority = 255;
+const uint8_t idle_task_stack_size = 64;
+
+void *idle_task(void) {
 	// reset watchdog counter
 	// if the uart gets a queue, flush logs here
 	// check stack limits being approached by tasks
@@ -39,4 +45,28 @@ void idle_task(void) {
 	// change power modes?
 	// calculate utilization of each task
 	// toggle led on idle task entry
+	// print size of malloc'ed memory
+	volatile int i;
+	volatile int j;
+	volatile int c;
+	while(1) {
+		for(i = 'a'; i <= 'z'; i++) {
+			uart_printf("%c", (char) i);
+			for (j = 0; j < 10000; j++) {
+				c++;
+			}
+		}
+	}
+}
+
+int idle_task_init(void) {
+	if (task_create(idle_task_name, &idle_task,
+				idle_task_priority, idle_task_stack_size) != 0) {
+		uart_printf("%s: ERROR unable to initialize task=%s\n\r",
+				__FUNCTION__, idle_task_name);
+		return -1;
+	}
+	uart_printf("%s: Successfully added %s\n\r", __FUNCTION__, idle_task_name);
+
+	return 0;
 }

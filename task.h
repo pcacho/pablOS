@@ -37,6 +37,7 @@
 
 #define TASK_MAX_NAME_LEN 16
 #define TASK_STACK_KEY 0xDEADBEAF
+
 typedef enum {
 	E_TASK_RUNNING,
 	E_TASK_READY,
@@ -56,7 +57,10 @@ typedef struct tcb {
 	uint64_t creation_tick;
 	uint64_t total_run_ticks;
 	char name[TASK_MAX_NAME_LEN];
-	struct node *tcb;
+	struct tcb *next;
 } tcb_t, *tcbPtr;
+
+int task_init(void);
+int task_create(const char *task_name, void (*function), uint8_t priority, uint32_t stack_size);
 
 #endif

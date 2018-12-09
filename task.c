@@ -85,7 +85,7 @@ int task_create(const char *task_name, void (*function), uint8_t priority, uint3
 #if TASK_STACK_DEBUG
 	uint32_t *ptr = tcb->sp;
 #endif
-	uart_printf("function_addr=%08X tcb->sp=%02X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
+	uart_printf("function_addr=%08X tcb->sp=%08X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
 	// set stack to special key so we can calculate utilization in idle task
 	for (int i = 0; i < stack_size; i++) {
 		*tcb->sp++ = TASK_STACK_KEY;

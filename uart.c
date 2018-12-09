@@ -165,6 +165,8 @@ void uart_printf(char *str, ...) {
 			break;
 		}
 		str++;
+		width = 0;
+		prepend = '\0';
 	}
 
 }

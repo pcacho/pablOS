@@ -35,7 +35,7 @@
 
 const char idle_task_name[] = "IdleTask";
 const uint8_t idle_task_priority = 255;
-const uint8_t idle_task_stack_size = 64;
+const uint32_t idle_task_stack_size = 128;
 
 void *idle_task(void) {
 	// reset watchdog counter

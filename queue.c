@@ -34,7 +34,7 @@
 #include "uart.h"
 #include "queue.h"
 
-#define QUEUE_DEBUG 1
+#define QUEUE_DEBUG 0
 
 int queue_init(Queue *qp, char *name) {
 	*qp = (Queue) malloc(sizeof(Queue_t));
@@ -93,6 +93,57 @@ int queue_dequeue(Queue Q, tcb_t **tcb) {
 	if (Q->head == NULL) {
 		Q->tail = NULL;
 	}
+	Q->size--;
 
 	return 0;
 }
+
+#if defined(TEST_BUILD)
+int queue_test(void) {
+	int ret = 0;
+	char name[] = "QueueTest";
+	Queue testQ;
+	queue_init(&testQ, name);
+
+	// Test 1: make sure empty works
+	if (queue_empty(testQ) != 1) {
+		uart_printf("%s: Test 1 FAIL\n\r", __FUNCTION__);
+		ret = -1;
+	} else {
+		uart_printf("%s: Test 1 PASS\n\r", __FUNCTION__);
+	}
+
+	// Test 2: test insert and non-empty
+	tcb_t tcb;
+	bzero(&tcb, sizeof(tcb_t));
+	strncpy(tcb.name, name, TASK_MAX_NAME_LEN);
+	queue_insert(testQ, &tcb);
+	if (queue_empty(testQ) != 0) {
+		uart_printf("%s: Test 2 FAIL\n\r", __FUNCTION__);
+		ret = -1;
+	} else {
+		uart_printf("%s: Test 2 PASS\n\r", __FUNCTION__);
+	}
+
+	// Test 3: dequeue and verify name
+	tcb_t *tcb_out;
+	queue_dequeue(testQ, &tcb_out);
+	if (strncmp(tcb_out->name, name, TASK_MAX_NAME_LEN) != 0) {
+		uart_printf("%s: Test 3 FAIL\n\r", __FUNCTION__);
+		ret = -1;
+	} else {
+		uart_printf("%s: Test 3 PASS\n\r", __FUNCTION__);
+	}
+
+	// Test 4: make sure empty after dequeue works
+	if (queue_empty(testQ) != 1) {
+		uart_printf("%s: Test 4 FAIL\n\r", __FUNCTION__);
+		ret = -1;
+	} else {
+		uart_printf("%s: Test 4 PASS\n\r", __FUNCTION__);
+	}
+
+	return ret;
+}
+
+#endif

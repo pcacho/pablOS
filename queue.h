@@ -47,5 +47,6 @@ typedef struct {
 int queue_init(Queue *qp, char *name);
 void queue_insert(Queue Q, tcb_t *tcb);
 int queue_dequeue(Queue Q, tcb_t **tcb);
+int queue_test(void);
 
 #endif

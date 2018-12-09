@@ -36,6 +36,7 @@
 #include "task.h"
 #include "idle.h"
 #include "scheduler.h"
+#include "queue.h"
 
 static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.1\n\r";
 
@@ -56,6 +57,9 @@ int main(void) {
 	uart_puts("\n\r");
 	util_memdump((uint32_t*) &pablOS_version[0], 64);
 
+#if defined(TEST_BUILD)
+	queue_test();
+#endif
 	// Initialize scheduler
 	scheduler_init();
 
@@ -66,6 +70,6 @@ int main(void) {
 	idle_task_init();
 
 	// Call the scheduler
-	scheduler();
+	//scheduler();
 
 }

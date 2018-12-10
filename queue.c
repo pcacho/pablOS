@@ -29,6 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "uart.h"
@@ -40,7 +41,7 @@ int queue_init(Queue *qp, char *name) {
 	*qp = (Queue) malloc(sizeof(Queue_t));
 	if (*qp == NULL) {
 #if QUEUE_DEBUG
-		uart_printf("%s: ERROR unable to allocate space for queue\n\r", __FUNCTION__);
+		printf("%s: ERROR unable to allocate space for queue\n\r", __FUNCTION__);
 #endif
 		return -1;
 	}
@@ -49,7 +50,7 @@ int queue_init(Queue *qp, char *name) {
 	(*qp)->size = 0;
 	strncpy((*qp)->name, name, QUEUE_MAX_NAME_LEN);
 #if QUEUE_DEBUG
-	uart_printf("%s: initialized %s\n\r", __FUNCTION__, (*qp)->name);
+	printf("%s: initialized %s\n\r", __FUNCTION__, (*qp)->name);
 #endif
 
 	return 0;
@@ -79,7 +80,7 @@ void queue_insert(Queue Q, tcb_t *tcb) {
 		Q->size++;
 	}
 #if QUEUE_DEBUG
-	uart_printf("%s: inserted %s into position=%d\n\r",
+	printf("%s: inserted %s into position=%d\n\r",
 			__FUNCTION__, tcb->name, position);
 #endif
 }
@@ -107,10 +108,10 @@ int queue_test(void) {
 
 	// Test 1: make sure empty works
 	if (queue_empty(testQ) != 1) {
-		uart_printf("%s: Test 1 FAIL\n\r", __FUNCTION__);
+		printf("%s: Test 1 FAIL\n\r", __FUNCTION__);
 		ret = -1;
 	} else {
-		uart_printf("%s: Test 1 PASS\n\r", __FUNCTION__);
+		printf("%s: Test 1 PASS\n\r", __FUNCTION__);
 	}
 
 	// Test 2: test insert and non-empty
@@ -119,28 +120,28 @@ int queue_test(void) {
 	strncpy(tcb.name, name, TASK_MAX_NAME_LEN);
 	queue_insert(testQ, &tcb);
 	if (queue_empty(testQ) != 0) {
-		uart_printf("%s: Test 2 FAIL\n\r", __FUNCTION__);
+		printf("%s: Test 2 FAIL\n\r", __FUNCTION__);
 		ret = -1;
 	} else {
-		uart_printf("%s: Test 2 PASS\n\r", __FUNCTION__);
+		printf("%s: Test 2 PASS\n\r", __FUNCTION__);
 	}
 
 	// Test 3: dequeue and verify name
 	tcb_t *tcb_out;
 	queue_dequeue(testQ, &tcb_out);
 	if (strncmp(tcb_out->name, name, TASK_MAX_NAME_LEN) != 0) {
-		uart_printf("%s: Test 3 FAIL\n\r", __FUNCTION__);
+		printf("%s: Test 3 FAIL\n\r", __FUNCTION__);
 		ret = -1;
 	} else {
-		uart_printf("%s: Test 3 PASS\n\r", __FUNCTION__);
+		printf("%s: Test 3 PASS\n\r", __FUNCTION__);
 	}
 
 	// Test 4: make sure empty after dequeue works
 	if (queue_empty(testQ) != 1) {
-		uart_printf("%s: Test 4 FAIL\n\r", __FUNCTION__);
+		printf("%s: Test 4 FAIL\n\r", __FUNCTION__);
 		ret = -1;
 	} else {
-		uart_printf("%s: Test 4 PASS\n\r", __FUNCTION__);
+		printf("%s: Test 4 PASS\n\r", __FUNCTION__);
 	}
 
 	return ret;

@@ -29,6 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -69,7 +70,7 @@ int task_create(const char *task_name, void (*function), uint8_t priority, uint3
 	// Allocate TCB
 	tcb_t *tcb = (tcb_t*) malloc(sizeof(tcb_t));
 	if (tcb == NULL) {
-		uart_printf("%s: ERROR unable to allocate space for task=%s\n\r",
+		printf("%s: ERROR unable to allocate space for task=%s\n\r",
 				__FUNCTION__, task_name);
 		return -1;
 	}
@@ -78,14 +79,14 @@ int task_create(const char *task_name, void (*function), uint8_t priority, uint3
 	// Allocate space for stack
 	tcb->sp = (uint32_t*) malloc(stack_size);
 	if (tcb->sp == NULL) {
-		uart_printf("%s: ERROR unable to allocate stack space for task=%s\n\r",
+		printf("%s: ERROR unable to allocate stack space for task=%s\n\r",
 				__FUNCTION__, task_name);
 		return -1;
 	}
 #if TASK_STACK_DEBUG
 	uint32_t *ptr = tcb->sp;
 #endif
-	uart_printf("function_addr=%08X tcb->sp=%08X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
+	printf("function_addr=%08X tcb->sp=%08X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
 	// set stack to special key so we can calculate utilization in idle task
 	for (int i = 0; i < stack_size; i++) {
 		*tcb->sp++ = TASK_STACK_KEY;
@@ -94,7 +95,7 @@ int task_create(const char *task_name, void (*function), uint8_t priority, uint3
 
 #if TASK_STACK_DEBUG
 	util_memdump(ptr , 64*4);
-	uart_printf("function_addr=%08X tcb->sp=%02X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
+	printf("function_addr=%08X tcb->sp=%02X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
 #endif
 	*tcb->sp-- = (uint32_t) function;
 	*tcb->sp = (uint32_t) tcb->sp;

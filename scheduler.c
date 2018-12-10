@@ -29,6 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
 #include "queue.h"
 #include "uart.h"
 #include "task.h"
@@ -52,16 +53,16 @@ int scheduler_init(void) {
 	int ret;
 	ret = queue_init(&s_readyQ, QUEUE_NAME_READY);
 	if (ret != 0) {
-		uart_printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
+		printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
 	} else {
-		uart_printf("%s: Scheduler initialized\n\r", __FUNCTION__);
+		printf("%s: Scheduler initialized\n\r", __FUNCTION__);
 	}
 
 	ret = queue_init(&s_runningQ, QUEUE_NAME_RUNNING);
 	if (ret != 0) {
-		uart_printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
+		printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
 	} else {
-		uart_printf("%s: Scheduler initialized\n\r", __FUNCTION__);
+		printf("%s: Scheduler initialized\n\r", __FUNCTION__);
 	}
 
 	return 0;

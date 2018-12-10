@@ -29,6 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
 #include "task.h"
 #include "idle.h"
 #include "uart.h"
@@ -51,7 +52,7 @@ void *idle_task(void) {
 	volatile int c;
 	while(1) {
 		for(i = 'a'; i <= 'z'; i++) {
-			uart_printf("%c", (char) i);
+			printf("%c", (char) i);
 			for (j = 0; j < 10000; j++) {
 				c++;
 			}
@@ -62,11 +63,11 @@ void *idle_task(void) {
 int idle_task_init(void) {
 	if (task_create(idle_task_name, &idle_task,
 				idle_task_priority, idle_task_stack_size) != 0) {
-		uart_printf("%s: ERROR unable to initialize task=%s\n\r",
+		printf("%s: ERROR unable to initialize task=%s\n\r",
 				__FUNCTION__, idle_task_name);
 		return -1;
 	}
-	uart_printf("%s: Successfully added %s\n\r", __FUNCTION__, idle_task_name);
+	printf("%s: Successfully added %s\n\r", __FUNCTION__, idle_task_name);
 
 	return 0;
 }

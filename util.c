@@ -29,6 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
@@ -51,13 +52,13 @@ void util_memdump(uint32_t *start_addr, uint32_t len) {
 	for (i = 0; i < num_iter; i++) {
 		// Print memory address
 		if (first_pass) {
-			uart_printf("\n\r0x%08X ", (uint32_t) start_addr);
+			printf("\n\r0x%08X ", (uint32_t) start_addr);
 			first_pass = 0;
 		}
 		uint32_t val = *start_addr++;
 
 		// Print data at memory address
-		uart_printf("%08X ", val);
+		printf("%08X ", val);
 
 		// Convert data to ASCII
 		for (j = 24; j >= 0; j-=8) {
@@ -68,11 +69,11 @@ void util_memdump(uint32_t *start_addr, uint32_t len) {
 
 		// formatting
 		if (((i + 1) % 4) == 0) {
-			uart_printf(" %s\n\r", buffer);
+			printf(" %s\n\r", buffer);
 			bzero(buffer, sizeof(buffer));
 			index = 0;
 			if ((i + 1) < num_iter) {
-				uart_printf("0x%08X ", (uint32_t) start_addr);
+				printf("0x%08X ", (uint32_t) start_addr);
 			}
 		}
 	}

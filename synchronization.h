@@ -29,57 +29,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdarg.h>
-#include <strings.h>
-#include <string.h>
-#include <ctype.h>
-#include "gpio.h"
-#include "synchronization.h"
-#include "uart.h"
+#ifndef _SYNCHRONIZATION_H
+#define _SYNCHRONIZATION_H
 
-#define UART0 (*(UART_CSR*) UART0_CTRL_ADDR)
-mutex_t s_mutex_uart0;
+#include <stdint.h>
+typedef struct {
+	uint32_t state;
+} mutex_t;
 
-void uart_putc(char c) {
-	while (UART0.TXDATA.full);
-	UART0.TXDATA.data = c;
-}
+void mutex_init(mutex_t *mutex);
+extern int mutex_acquire(mutex_t *mutex);
+extern void mutex_release(mutex_t *mutex);
 
-void uart_puts(char *s) {
-	while (*s != '\0'){
-		uart_putc(*s++);
-	}
-}
-
-void uart_init(void) {
-
-	// Configure UART0 GPIOs
-	gpio_output_set(UART0_TX_PIN, 1);
-	gpio_output_set(UART0_RX_PIN, 1);
-
-	gpio_output_enable(UART0_TX_PIN, 1);
-	gpio_output_enable(UART0_RX_PIN, 1);
-
-	// SiFive HiFive1 Getting Started Guide 1.0.2
-	// Table 7.1: HiFive1 GPIO Offset to Board Pin Number
-	gpio_iof_sel(UART0_TX_PIN, 0);
-	gpio_iof_sel(UART0_RX_PIN, 0);
-
-	gpio_iof_enable(UART0_TX_PIN, 1);
-	gpio_iof_enable(UART0_RX_PIN, 1);
-
-	// Configure baud rate and enable TX/RX
-	UART0.DIV.div = UART_BAUD_115200;
-	UART0.TXCTRL.txen = 1;
-	UART0.RXCTRL.rxen = 1;
-
-	// Initialize mutex
-	mutex_init(&s_mutex_uart0);
-
-	// TODO: add delays in timer.c
-	// UART needs settling time
-	volatile int i=0;
-	while (i < 10000){
-		i++;
-	}
-}
+#endif

@@ -29,40 +29,57 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
 #include <stdint.h>
-#include "encoding.h"
+#include <stdio.h>
 #include "platform.h"
-#include "uart.h"
-#include "util.h"
-#include "task.h"
-#include "idle.h"
+#include "encoding.h"
 #include "scheduler.h"
+#include "plic/plic_driver.h"
+#include "uart.h"
 #include "interrupt.h"
-#include "queue.h"
 
-static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.1\n\r";
+plic_instance_t s_plic;
 
-int main(void) {
-	printf("%s\n\r", pablOS_version);
-	util_memdump((uint32_t*) &pablOS_version[0], 64);
+// RTOS scheduler interval
+int s_scheduler_interval;
+void interrupt_init(void);
 
-	// Initialize interrupts
-	interrupt_init();
+void handle_m_time_interrupt(){
+	clear_csr(mie, MIP_MTIP);
 
-#if defined(TEST_BUILD)
-	queue_test();
-#endif
-	// Initialize scheduler
-	scheduler_init();
+	volatile uint64_t * mtime       = (uint64_t*) (CLINT_CTRL_ADDR + CLINT_MTIME);
+	volatile uint64_t * mtimecmp    = (uint64_t*) (CLINT_CTRL_ADDR + CLINT_MTIMECMP);
+	uint64_t now = *mtime;
+	uint64_t then = now + s_scheduler_interval;
+	*mtimecmp = then;
 
-	// Initialize the Task Manager State
-	task_init();
+	// Re-enable the timer interrupt.
+	set_csr(mie, MIP_MTIP);
 
-	// Initialize Idle Task
-	idle_task_init();
+	// Call scheduler
+	scheduler();
+}
 
-	// Call the scheduler
-	//scheduler();
+void interrupt_timer_init(int msec) {
+	// Convert msec to ticks
+	int ticks_per_msec = RTC_FREQ/1000;
+	s_scheduler_interval = ticks_per_msec * msec;
 
+	clear_csr(mie, MIP_MTIP);
+	volatile uint64_t * mtime       = (uint64_t*) (CLINT_CTRL_ADDR + CLINT_MTIME);
+	volatile uint64_t * mtimecmp    = (uint64_t*) (CLINT_CTRL_ADDR + CLINT_MTIMECMP);
+	uint64_t now = *mtime;
+	uint64_t then = now + s_scheduler_interval;
+	*mtimecmp = then;
+
+	// Enable timer interrupt
+	set_csr(mie, MIP_MTIP);
+
+	// Machine interrupt enable
+	set_csr(mstatus, MSTATUS_MIE);
+}
+
+void interrupt_init(void) {
+	// Initialize PLIC
+	PLIC_init(&s_plic, PLIC_CTRL_ADDR, PLIC_NUM_INTERRUPTS, PLIC_NUM_PRIORITIES);
 }

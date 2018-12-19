@@ -29,40 +29,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include "encoding.h"
-#include "platform.h"
-#include "uart.h"
-#include "util.h"
-#include "task.h"
-#include "idle.h"
-#include "scheduler.h"
-#include "interrupt.h"
-#include "queue.h"
+#ifndef _INTERRUPT_H
+#define _INTERRUPT_H
 
-static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.1\n\r";
+void interrupt_timer_init(int msec);
+void interrupt_init(void);
 
-int main(void) {
-	printf("%s\n\r", pablOS_version);
-	util_memdump((uint32_t*) &pablOS_version[0], 64);
-
-	// Initialize interrupts
-	interrupt_init();
-
-#if defined(TEST_BUILD)
-	queue_test();
 #endif
-	// Initialize scheduler
-	scheduler_init();
-
-	// Initialize the Task Manager State
-	task_init();
-
-	// Initialize Idle Task
-	idle_task_init();
-
-	// Call the scheduler
-	//scheduler();
-
-}

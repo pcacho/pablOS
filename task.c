@@ -64,6 +64,13 @@ int task_next_available_get() {
 	return s_tms.next_available_id;
 }
 
+void task_stack_init(uint32_t *ptr, uint32_t sp, uint32_t function) {
+	contextRegs_t *cr = (contextRegs_t*) ptr;
+	cr->ra = function;
+	cr->sp = sp;
+	cr->t6 = 0xaaaabbbb;
+	cr->pc = function;
+}
 
 int task_create(const char *task_name, void (*function), uint8_t priority, uint32_t stack_size) {
 
@@ -77,31 +84,28 @@ int task_create(const char *task_name, void (*function), uint8_t priority, uint3
 	bzero(tcb, sizeof(tcb_t));
 
 	// Allocate space for stack
-	tcb->sp = (uint32_t*) malloc(stack_size);
+	tcb->sp = (uint32_t*) malloc(stack_size*4);
 	if (tcb->sp == NULL) {
 		printf("%s: ERROR unable to allocate stack space for task=%s\n\r",
 				__FUNCTION__, task_name);
 		return -1;
 	}
-#if TASK_STACK_DEBUG
-	uint32_t *ptr = tcb->sp;
-#endif
-	printf("function_addr=%08X tcb->sp=%08X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
-	// set stack to special key so we can calculate utilization in idle task
-	for (int i = 0; i < stack_size; i++) {
+
+	// Save base address of thread stack
+	tcb->base_sp = tcb->sp;
+
+	// set stack to special key
+	int i;
+	for (i = 0; i < stack_size; i++) {
 		*tcb->sp++ = TASK_STACK_KEY;
 	}
 	tcb->sp--;
+	printf("function_addr=%08X &regs[0]=%08X base_sp=0x%08X sp=0x%08X\n\r",
+			(uint32_t) function, (uint32_t)&tcb->regs[0],
+			(uint32_t) tcb->base_sp, (uint32_t) tcb->sp);
 
-#if TASK_STACK_DEBUG
-	util_memdump(ptr , 64*4);
-	printf("function_addr=%08X tcb->sp=%02X\n\r", (uint32_t) function, (uint32_t)tcb->sp);
-#endif
-	*tcb->sp-- = (uint32_t) function;
-	*tcb->sp = (uint32_t) tcb->sp;
-#if TASK_STACK_DEBUG
-	util_memdump(ptr, 64*4);
-#endif
+	// Initialize context registers
+	task_stack_init(&tcb->regs[0], (uint32_t) tcb->sp, (uint32_t) function);
 
 	// Initalize TCB
 	tcb->function = function;

@@ -44,19 +44,58 @@ typedef enum {
 	E_TASK_SUSPENDED,
 } taskState_t;
 
+// Registers that need to be saved/restored from stack
+typedef struct {
+	uint32_t ra;
+	uint32_t sp;
+	uint32_t gp;
+	uint32_t tp;
+	uint32_t t0;
+	uint32_t t1;
+	uint32_t t2;
+	uint32_t s0;
+	uint32_t s1;
+	uint32_t a0;
+	uint32_t a1;
+	uint32_t a2;
+	uint32_t a3;
+	uint32_t a4;
+	uint32_t a5;
+	uint32_t a6;
+	uint32_t a7;
+	uint32_t s2;
+	uint32_t s3;
+	uint32_t s4;
+	uint32_t s5;
+	uint32_t s6;
+	uint32_t s7;
+	uint32_t s8;
+	uint32_t s9;
+	uint32_t s10;
+	uint32_t s11;
+	uint32_t t3;
+	uint32_t t4;
+	uint32_t t5;
+	uint32_t t6;
+	uint32_t pc;
+} contextRegs_t;
+
+
 // Task Control Block
 typedef struct tcb {
+	uint32_t regs[32];
+	char name[TASK_MAX_NAME_LEN];
 	void *function;
-	uint8_t id;
+	uint32_t id;
 	uint32_t *sp;
+	uint32_t *base_sp;
 	uint32_t stack_size;
-	uint8_t priority;
-	uint8_t wait_time;
+	uint32_t priority;
+	uint32_t wait_time;
 	taskState_t state;
 	uint64_t last_run_tick;
 	uint64_t creation_tick;
 	uint64_t total_run_ticks;
-	char name[TASK_MAX_NAME_LEN];
 	struct tcb *next;
 } tcb_t, *tcbPtr;
 

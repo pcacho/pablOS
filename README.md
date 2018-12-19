@@ -21,6 +21,12 @@ Install:
 
 	-> git clone https://github.com/pcacho/pablOS.git
 
+3) Patch BSP's default init.c from the freedom-e-sdk directory
+	
+	-> cd ..
+
+	-> patch -p1 < software/pablOS/init.patch
+
 3) Compile using the RISC-V cross-compiler
 
 	-> make software PROGRAM=pablOS

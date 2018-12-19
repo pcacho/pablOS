@@ -1,0 +1,17 @@
+diff --git a/bsp/env/freedom-e300-hifive1/init.c b/bsp/env/freedom-e300-hifive1/init.c
+index 621a6e2..d4355f4 100644
+--- a/bsp/env/freedom-e300-hifive1/init.c
++++ b/bsp/env/freedom-e300-hifive1/init.c
+@@ -222,9 +222,12 @@ void _init()
+   use_pll(0, 0, 1, 31, 1);
+   uart_init(115200);
+ 
++#if 0
+   printf("core freq at %d Hz\n", get_cpu_freq());
+ 
++
+   write_csr(mtvec, &trap_entry);
++#endif
+   if (read_csr(misa) & (1 << ('F' - 'A'))) { // if F extension is present
+     write_csr(mstatus, MSTATUS_FS); // allow FPU instructions without trapping
+     write_csr(fcsr, 0); // initialize rounding mode, undefined at reset

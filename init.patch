@@ -1,17 +1,51 @@
 diff --git a/bsp/env/freedom-e300-hifive1/init.c b/bsp/env/freedom-e300-hifive1/init.c
-index 621a6e2..d4355f4 100644
+index 621a6e2..afd0fef 100644
 --- a/bsp/env/freedom-e300-hifive1/init.c
 +++ b/bsp/env/freedom-e300-hifive1/init.c
-@@ -222,9 +222,12 @@ void _init()
+@@ -7,6 +7,9 @@
+ 
+ extern int main(int argc, char** argv);
+ extern void trap_entry();
++extern int context_init(void);
++extern void context_isr(void);
++extern void *error(void);
+ 
+ static unsigned long mtime_lo(void)
+ {
+@@ -193,6 +196,7 @@ extern void handle_m_ext_interrupt();
+ extern void handle_m_time_interrupt();
+ #endif
+ 
++#if 0
+ uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc)
+ {
+   if (0){
+@@ -213,18 +217,27 @@ uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc)
+   }
+   return epc;
+ }
++#endif
+ 
+ void _init()
+ {
+   
++  context_init();
+   #ifndef NO_INIT
+   use_default_clocks();
    use_pll(0, 0, 1, 31, 1);
    uart_init(115200);
  
-+#if 0
-   printf("core freq at %d Hz\n", get_cpu_freq());
- 
++  volatile int i;
++  for (i = 0; i < 10000; i++) {
++	  i++;
++  }
 +
-   write_csr(mtvec, &trap_entry);
++#if 1
+   printf("core freq at %d Hz\n", get_cpu_freq());
 +#endif
+ 
+-  write_csr(mtvec, &trap_entry);
++  write_csr(mtvec, &context_isr);
    if (read_csr(misa) & (1 << ('F' - 'A'))) { // if F extension is present
      write_csr(mstatus, MSTATUS_FS); // allow FPU instructions without trapping
      write_csr(fcsr, 0); // initialize rounding mode, undefined at reset

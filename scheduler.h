@@ -38,5 +38,6 @@
 int scheduler_init(void);
 int scheduler(void);
 void scheduler_new_task(tcb_t *tcb);
+void scheduler_start(void);
 
 #endif

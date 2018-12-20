@@ -41,8 +41,10 @@
 mutex_t s_mutex_uart0;
 
 void uart_putc(char c) {
+	mutex_acquire(&s_mutex_uart0);
 	while (UART0.TXDATA.full);
 	UART0.TXDATA.data = c;
+	mutex_release(&s_mutex_uart0);
 }
 
 void uart_puts(char *s) {

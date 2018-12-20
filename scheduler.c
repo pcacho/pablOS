@@ -33,9 +33,12 @@
 #include "queue.h"
 #include "uart.h"
 #include "task.h"
+#include "interrupt.h"
+#include "util.h"
 #include "scheduler.h"
 
-extern void context_restore(uint32_t sp);
+extern void context_restore(uint32_t *cr);
+
 // Ready Queue fed by:
 // Fast Service Queue
 // Event Queue
@@ -44,38 +47,46 @@ extern void context_restore(uint32_t sp);
 
 // Ready Queue
 Queue s_readyQ;
-Queue s_runningQ;
+
+// Running task
+tcb_t *s_rTask;
 
 #define QUEUE_NAME_READY "ReadyQueue"
 #define QUEUE_NAME_RUNNING "RunningQueue"
+#define SCHEDULER_INTERVAL_MSEC 4000
 
 int scheduler_init(void) {
 	int ret;
+
+	// Initialize ready queue
 	ret = queue_init(&s_readyQ, QUEUE_NAME_READY);
 	if (ret != 0) {
-		printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
+		printf("%s: Scheduler failed to initialize readyQ\n\r", __FUNCTION__);
 	} else {
-		printf("%s: Scheduler initialized\n\r", __FUNCTION__);
-	}
-
-	ret = queue_init(&s_runningQ, QUEUE_NAME_RUNNING);
-	if (ret != 0) {
-		printf("%s: Scheduler failed to initialize\n\r", __FUNCTION__);
-	} else {
-		printf("%s: Scheduler initialized\n\r", __FUNCTION__);
+		printf("%s: Scheduler initialized readyQ\n\r", __FUNCTION__);
 	}
 
 	return 0;
 }
+
+void scheduler_start(void) {
+	// Initialize the scheduler interrupt
+	printf("%s: starting scheduler\n\r", __FUNCTION__);
+	queue_dequeue(s_readyQ, &s_rTask);
+	interrupt_timer_init(SCHEDULER_INTERVAL_MSEC);
+	context_restore(&s_rTask->regs[0]);
+}
+
 
 void scheduler_new_task(tcb_t *tcb) {
 	queue_insert(s_readyQ, tcb);
 }
 
 int scheduler(void) {
-	tcb_t *tcb;
+	tcb_t *old_tcb = s_rTask;
+	queue_insert(s_readyQ, old_tcb);
+	queue_dequeue(s_readyQ, &s_rTask);
 
-	queue_dequeue(s_readyQ, &tcb);
-	context_restore((uint32_t) tcb->sp);
+	context_restore(&s_rTask->regs[0]);
 
 }

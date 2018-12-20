@@ -35,6 +35,7 @@
 #include "uart.h"
 
 const char idle_task_name[] = "IdleTask";
+const char idle_task_name2[] = "IdleTask2";
 const uint8_t idle_task_priority = 255;
 const uint32_t idle_task_stack_size = 128;
 
@@ -51,14 +52,29 @@ void *idle_task(void) {
 	volatile int j;
 	volatile int c;
 	while(1) {
-		for(i = 'a'; i <= 'z'; i++) {
-			printf("%c", (char) i);
-			for (j = 0; j < 10000; j++) {
+		for(i = 'A'; i <= 'Z'; i++) {
+			uart_putc(i);
+			for (j = 0; j < 100000; j++) {
 				c++;
 			}
 		}
 	}
 }
+
+void *idle_task2(void) {
+	volatile int i;
+	volatile int j;
+	volatile int c;
+	while(1) {
+		for(i = 'a'; i <= 'z'; i++) {
+			printf("%c", (char) i);
+			uart_putc(i);
+			for (j = 0; j < 100000; j++) {
+				c++;
+			}
+		}
+	}
+ }
 
 int idle_task_init(void) {
 	if (task_create(idle_task_name, &idle_task,
@@ -68,6 +84,14 @@ int idle_task_init(void) {
 		return -1;
 	}
 	printf("%s: Successfully added %s\n\r", __FUNCTION__, idle_task_name);
+
+	if (task_create(idle_task_name2, &idle_task2,
+				idle_task_priority, idle_task_stack_size) != 0) {
+		printf("%s: ERROR unable to initialize task=%s\n\r",
+				__FUNCTION__, idle_task_name);
+		return -1;
+	}
+	printf("%s: Successfully added %s\n\r", __FUNCTION__, idle_task_name2);
 
 	return 0;
 }

@@ -42,7 +42,6 @@ plic_instance_t s_plic;
 
 // RTOS scheduler interval
 int s_scheduler_interval;
-void interrupt_init(void);
 
 void handle_m_time_interrupt(){
 	clear_csr(mie, MIP_MTIP);

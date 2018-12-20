@@ -44,6 +44,7 @@
 static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.1\n\r";
 
 int main(void) {
+	volatile int i;
 	printf("%s\n\r", pablOS_version);
 	util_memdump((uint32_t*) &pablOS_version[0], 64);
 
@@ -62,7 +63,13 @@ int main(void) {
 	// Initialize Idle Task
 	idle_task_init();
 
-	// Call the scheduler
-	//scheduler();
+	// Start the scheduler
+	scheduler_start();
 
+	// Should never reach this spot
+	while (1) {
+		i++;
+	}
+
+	return -1;
 }

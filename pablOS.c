@@ -41,7 +41,7 @@
 #include "interrupt.h"
 #include "queue.h"
 
-static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.1\n\r";
+static char pablOS_version[] = "\a\n\r\n\rpablOS Version 0.2\n\r";
 
 int main(void) {
 	volatile int i;
